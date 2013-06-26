@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="buttonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:background">@drawable/buttons</item>
+        <item name="android:minWidth">120dp</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+</resources>

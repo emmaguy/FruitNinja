@@ -1,0 +1,7 @@
+<resources>
+
+    <string name="app_name">Fruit Ninja</string>
+    <string name="start">Start</string>
+    <string name="button_home">Home</string>
+
+</resources>
