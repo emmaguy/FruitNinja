@@ -1,8 +1,5 @@
 package dev.emmaguy.fruitninja.ui;
 
-import java.util.Iterator;
-import java.util.List;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -55,19 +52,15 @@ public class GameFragment extends Fragment implements SurfaceHolder.Callback, On
 	switch (event.getAction()) {
 	case MotionEvent.ACTION_DOWN:
 
-	    List<Projectile> projectiles = projectileManager.getProjectiles();
+	    for (Projectile p : projectileManager.getProjectiles()) {
 
-	    synchronized (projectiles) {
-		for (Iterator<Projectile> iter = projectiles.iterator(); iter.hasNext();) {
-
-		    Projectile p = iter.next();
-		    if (p.getLocation().contains(x, y)) {
-			iter.remove();
-			gameThread.incrementScore();
-			break;	
-		    }
+		if (p.isAlive() && p.getLocation().contains(x, y)) {
+		    p.kill();
+		    gameThread.incrementScore();
+		    break;
 		}
 	    }
+
 	    return true;
 	}
 
