@@ -3,20 +3,25 @@ package dev.emmaguy.fruitninja;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
 public class FruitProjectile implements Projectile {
 
     private final Paint paint = new Paint();
+    private final Matrix m = new Matrix();
+    
     private final Bitmap b;
-
+    private final float rotationIncrement;
+    
     private final float gravity;
     private final int maxWidth;
     private final int maxHeight;
     private final int angle;
     private final int initialSpeed;
-
+    
+    private float rotationAngle;
     private float xLocation;
     private float yLocation;
     private float absYLocation;
@@ -24,7 +29,7 @@ public class FruitProjectile implements Projectile {
     private boolean rightToLeft;
 
     public FruitProjectile(Bitmap b, int maxWidth, int maxHeight, int angle, int initialSpeed, float gravity,
-	    boolean rightToLeft) {
+	    boolean rightToLeft, float rotationIncrement, float rotationStartingAngle) {
 	this.b = b;
 	this.maxHeight = maxHeight;
 	this.angle = angle;
@@ -32,8 +37,9 @@ public class FruitProjectile implements Projectile {
 	this.gravity = gravity;
 	this.maxWidth = maxWidth;
 	this.rightToLeft = rightToLeft;
+	this.rotationIncrement = rotationIncrement;
+	this.rotationAngle = rotationStartingAngle;
 
-	paint.setColor(Color.RED);
 	paint.setAntiAlias(true);
     }
 
@@ -60,7 +66,14 @@ public class FruitProjectile implements Projectile {
 
     @Override
     public void draw(Canvas canvas) {
-	canvas.drawBitmap(b, xLocation, absYLocation, paint);
+
+	m.reset();
+	m.postTranslate(-b.getWidth() / 2, -b.getHeight() / 2);
+	m.postRotate(rotationAngle);
+	m.postTranslate(xLocation + (b.getWidth() / 2), absYLocation + (b.getHeight() / 2));
+	rotationAngle += rotationIncrement;
+	
+	canvas.drawBitmap(b, m, paint);
     }
 
     @Override

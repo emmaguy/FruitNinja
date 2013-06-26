@@ -66,10 +66,17 @@ public class FruitProjectileManager implements ProjectileManager {
     private FruitProjectile createNewFruitProjectile() {
 	int angle = random.nextInt(20) + 70;
 	int speed = random.nextInt(30) + 120;
-	float gravity = random.nextInt(6) + 14.0f;
 	boolean rightToLeft = random.nextBoolean();
+	
+	float gravity = random.nextInt(6) + 14.0f;
+	float rotationStartingAngle = random.nextInt(360);
+	float rotationIncrement = random.nextInt(100) / 10.0f;
+	
+	if(random.nextInt(1) % 2 == 0){
+	    rotationIncrement *= -1;
+	}
 
-	FruitProjectile fruitProjectile = new FruitProjectile(bitmapCache.get(FruitType.randomFruit().getResourceId()), maxWidth, maxHeight, angle, speed, gravity, rightToLeft);
+	FruitProjectile fruitProjectile = new FruitProjectile(bitmapCache.get(FruitType.randomFruit().getResourceId()), maxWidth, maxHeight, angle, speed, gravity, rightToLeft, rotationIncrement, rotationStartingAngle);
 	return fruitProjectile;
     }
 
