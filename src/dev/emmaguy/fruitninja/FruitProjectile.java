@@ -99,8 +99,8 @@ public class FruitProjectile implements Projectile {
 	this.time = 0.0f;
 	this.isAlive = false;
 	
-	splitFruit[0] = Bitmap.createBitmap(b, 0, 0, b.getWidth() / 2, b.getHeight());
-	splitFruit[1] = Bitmap.createBitmap(b, b.getWidth() / 2, 0, b.getWidth() / 2, b.getHeight());
+	splitFruit[0] = Bitmap.createBitmap(b, 0, 0, b.getWidth() / 2, b.getHeight(), m, true);
+	splitFruit[1] = Bitmap.createBitmap(b, b.getWidth() / 2, 0, b.getWidth() / 2, b.getHeight(), m, true);
     }
 
     @Override
