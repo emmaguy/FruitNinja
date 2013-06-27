@@ -30,10 +30,8 @@ public class FruitProjectileManager implements ProjectileManager {
     }
 
     public void draw(Canvas canvas) {
-	synchronized (fruitProjectiles) {
-	    for (Projectile f : fruitProjectiles) {
-		f.draw(canvas);
-	    }
+	for (Projectile f : fruitProjectiles) {
+	    f.draw(canvas);
 	}
     }
 

@@ -1,7 +1,5 @@
 package dev.emmaguy.fruitninja;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -10,24 +8,29 @@ import java.util.concurrent.TimeUnit;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import dev.emmaguy.fruitninja.ui.GameFragment.OnGameOver;
 
 public class GameThread implements Runnable {
 
+    private static final float STROKE_WIDTH = 5f;
+
+    private final Paint scorePaint = new Paint();
     private final SurfaceHolder surfaceHolder;
     private final GameTimer timer = new GameTimer();
     private final OnGameOver gameOverListener;
     private final ProjectileManager projectileManager;
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-    private boolean isRunning = false;
     private volatile ScheduledFuture<?> self;
-    private final Paint scorePaint = new Paint();
-    private final Paint linePaint = new Paint();
+
+    private boolean isRunning = false;
     private int score = 0;
     private int width = 0;
-    private List<Line> lines = new ArrayList<Line>();
+    private Paint paint = new Paint();
+    private SparseArray<Path> paths;
 
     public GameThread(SurfaceHolder surfaceHolder, ProjectileManager projectileManager, OnGameOver gameOverListener) {
 	this.surfaceHolder = surfaceHolder;
@@ -58,9 +61,11 @@ public class GameThread implements Runnable {
 	this.scorePaint.setAntiAlias(true);
 	this.scorePaint.setTextSize(38.0f);
 
-	this.linePaint.setAntiAlias(true);
-	this.linePaint.setStrokeWidth(5.0f);
-	this.linePaint.setColor(Color.YELLOW);
+	this.paint.setAntiAlias(true);
+	this.paint.setColor(Color.YELLOW);
+	this.paint.setStyle(Paint.Style.STROKE);
+	this.paint.setStrokeJoin(Paint.Join.ROUND);
+	this.paint.setStrokeWidth(STROKE_WIDTH);
     }
 
     @Override
@@ -86,11 +91,9 @@ public class GameThread implements Runnable {
 			    timer.draw(canvas);
 			    canvas.drawText("Score: " + score, width - 160, 50, scorePaint);
 
-			    for (Line l : lines) {
-				canvas.drawLine(l.getStartX(), l.getStartY(), l.getStopX(), l.getStopY(), linePaint);
-				int remaining = l.decrementTicksRemaining();
-				if (remaining <= 0) {
-				    lines.remove(l);
+			    if (paths != null) {
+				for (int i = 0; i < paths.size(); i++){
+				    canvas.drawPath(paths.valueAt(i), paint);
 				}
 			    }
 			}
@@ -109,7 +112,7 @@ public class GameThread implements Runnable {
 	this.score++;
     }
 
-    public void addLine(float startX, float startY, float x, float y) {
-	this.lines.add(new Line(startX, startY, x, y));
+    public void updateDrawnPath(SparseArray<Path> paths) {
+	this.paths = paths;
     }
 }
