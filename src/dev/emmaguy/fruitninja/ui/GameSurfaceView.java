@@ -2,9 +2,7 @@ package dev.emmaguy.fruitninja.ui;
 
 import android.content.Context;
 import android.graphics.Path;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -47,31 +45,32 @@ public class GameSurfaceView extends SurfaceView implements OnTouchListener, Sur
 	this.setFocusable(true);
 	this.getHolder().addCallback(this);
     }
-    
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 	switch (event.getActionMasked()) {
-	case MotionEvent.ACTION_DOWN:
-	    createNewPath(event.getX(), event.getY(), event.getPointerId(0));
-	    break;
-	case MotionEvent.ACTION_POINTER_DOWN:
-
-	    int newPointerIndex = event.getActionIndex();
-	    createNewPath(event.getX(newPointerIndex), event.getY(newPointerIndex), event.getPointerId(newPointerIndex));
-	    
-	    break;
-	case MotionEvent.ACTION_MOVE:
-
-	    for (int i = 0; i < paths.size(); i++){
-		int pointerIndex = event.findPointerIndex(paths.indexOfKey(i));
-
-		if(pointerIndex >= 0){
-		    paths.valueAt(i).lineTo(event.getX(pointerIndex), event.getY(pointerIndex));
-		}		
-	    }
-	    break;
+        	case MotionEvent.ACTION_DOWN:
+        	    createNewPath(event.getX(), event.getY(), event.getPointerId(0));
+        	    break;
+        	case MotionEvent.ACTION_POINTER_DOWN:
+        
+        	    int newPointerIndex = event.getActionIndex();
+        	    createNewPath(event.getX(newPointerIndex), event.getY(newPointerIndex), event.getPointerId(newPointerIndex));
+        
+        	    break;
+        	case MotionEvent.ACTION_MOVE:
+        
+        	    for (int i = 0; i < paths.size(); i++) {
+        		int pointerIndex = event.findPointerIndex(paths.indexOfKey(i));
+        
+        		if (pointerIndex >= 0) {
+        		    paths.valueAt(i).lineTo(event.getX(pointerIndex), event.getY(pointerIndex));
+        		}
+        	    }
+        	    break;
 	}
-	gameThread.updateDrawnPath(paths);
+
+	gameThread.updateDrawnPath(paths, System.currentTimeMillis());
 	return true;
     }
 
@@ -80,48 +79,6 @@ public class GameSurfaceView extends SurfaceView implements OnTouchListener, Sur
 	path.moveTo(x, y);
 	paths.append(ptrId, path);
     }
-
-    // @Override
-    // public boolean onTouch(View v, MotionEvent event) {
-    //
-    // int action = MotionEventCompat.getActionMasked(event);
-    // int pointerIndex = MotionEventCompat.getActionIndex(event);
-    // int pointerId = MotionEventCompat.getPointerId(event, pointerIndex);
-    //
-    // float eventX = event.getX(pointerIndex);
-    // float eventY = event.getY(pointerIndex);
-    //
-    // Log.e("index", "X: " + eventX + " Y: " + eventY + " Index: " +
-    // pointerIndex + " id: " + pointerId + " ptr count: " +
-    // event.getPointerCount());
-    //
-    // switch (action) {
-    // case MotionEvent.ACTION_POINTER_DOWN:
-    // int newPointerIndex = event.getActionIndex();
-    // newPointer = event.getPointerId(newPointerIndex);
-    // return true;
-    // case MotionEvent.ACTION_DOWN:
-    // Path path = new Path();
-    // paths.append(pointerId, path);
-    // path.moveTo(eventX, eventY);
-    // return true;
-    //
-    // case MotionEvent.ACTION_MOVE:
-    // case MotionEvent.ACTION_UP:
-    // case MotionEvent.ACTION_POINTER_UP:
-    // Path p = paths.get(pointerId);
-    // if(p != null)
-    // p.lineTo(eventX, eventY);
-    //
-    // break;
-    //
-    // default:
-    // return false;
-    // }
-    //
-    // gameThread.updateDrawnPath(paths);
-    // return true;
-    // }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {

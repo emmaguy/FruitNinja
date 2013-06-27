@@ -5,6 +5,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,22 +16,23 @@ import dev.emmaguy.fruitninja.ui.GameFragment.OnGameOver;
 
 public class GameThread implements Runnable {
 
-    private static final float STROKE_WIDTH = 5f;
-
     private final Paint scorePaint = new Paint();
     private final SurfaceHolder surfaceHolder;
     private final GameTimer timer = new GameTimer();
     private final OnGameOver gameOverListener;
     private final ProjectileManager projectileManager;
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-
+    private final Paint linePaint = new Paint();
+    private final Paint linePaintBlur = new Paint();
+    
     private volatile ScheduledFuture<?> self;
 
-    private boolean isRunning = false;
     private int score = 0;
     private int width = 0;
-    private Paint paint = new Paint();
+    private boolean isRunning = false;
     private SparseArray<Path> paths;
+
+    private long lastTouchedTime;
 
     public GameThread(SurfaceHolder surfaceHolder, ProjectileManager projectileManager, OnGameOver gameOverListener) {
 	this.surfaceHolder = surfaceHolder;
@@ -61,11 +63,14 @@ public class GameThread implements Runnable {
 	this.scorePaint.setAntiAlias(true);
 	this.scorePaint.setTextSize(38.0f);
 
-	this.paint.setAntiAlias(true);
-	this.paint.setColor(Color.YELLOW);
-	this.paint.setStyle(Paint.Style.STROKE);
-	this.paint.setStrokeJoin(Paint.Join.ROUND);
-	this.paint.setStrokeWidth(STROKE_WIDTH);
+	this.linePaint.setAntiAlias(true);
+	this.linePaint.setColor(Color.YELLOW);
+	this.linePaint.setStyle(Paint.Style.STROKE);
+	this.linePaint.setStrokeJoin(Paint.Join.ROUND);
+	this.linePaint.setStrokeWidth(5.0f);
+	
+	this.linePaintBlur.set(this.linePaint);
+	this.linePaintBlur.setMaskFilter(new BlurMaskFilter(9.0f, BlurMaskFilter.Blur.NORMAL));
     }
 
     @Override
@@ -93,7 +98,11 @@ public class GameThread implements Runnable {
 
 			    if (paths != null) {
 				for (int i = 0; i < paths.size(); i++){
-				    canvas.drawPath(paths.valueAt(i), paint);
+				    canvas.drawPath(paths.valueAt(i), linePaintBlur);
+				    canvas.drawPath(paths.valueAt(i), linePaint);
+				}
+				if(lastTouchedTime + 300 < System.currentTimeMillis()){
+				    paths.clear();
 				}
 			    }
 			}
@@ -112,7 +121,8 @@ public class GameThread implements Runnable {
 	this.score++;
     }
 
-    public void updateDrawnPath(SparseArray<Path> paths) {
+    public void updateDrawnPath(SparseArray<Path> paths, long touchTime) {
 	this.paths = paths;
+	this.lastTouchedTime = touchTime;
     }
 }
