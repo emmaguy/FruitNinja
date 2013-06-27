@@ -9,8 +9,7 @@ import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.util.SparseArray;
+import android.support.v4.util.SparseArrayCompat;
 import android.view.SurfaceHolder;
 import dev.emmaguy.fruitninja.ui.GameFragment.OnGameOver;
 
@@ -30,9 +29,7 @@ public class GameThread implements Runnable {
     private int score = 0;
     private int width = 0;
     private boolean isRunning = false;
-    private SparseArray<Path> paths;
-
-    private long lastTouchedTime;
+    private SparseArrayCompat<TimedPath> paths;
 
     public GameThread(SurfaceHolder surfaceHolder, ProjectileManager projectileManager, OnGameOver gameOverListener) {
 	this.surfaceHolder = surfaceHolder;
@@ -97,12 +94,13 @@ public class GameThread implements Runnable {
 			    canvas.drawText("Score: " + score, width - 160, 50, scorePaint);
 
 			    if (paths != null) {
-				for (int i = 0; i < paths.size(); i++){
+				for (int i = 0; i < paths.size(); i++) {
 				    canvas.drawPath(paths.valueAt(i), linePaintBlur);
 				    canvas.drawPath(paths.valueAt(i), linePaint);
-				}
-				if(lastTouchedTime + 300 < System.currentTimeMillis()){
-				    paths.clear();
+				    
+				    if(paths.valueAt(i).getTimeDrawn() + 500 < System.currentTimeMillis()){
+					paths.removeAt(i);
+				    }
 				}
 			    }
 			}
@@ -121,8 +119,7 @@ public class GameThread implements Runnable {
 	this.score++;
     }
 
-    public void updateDrawnPath(SparseArray<Path> paths, long touchTime) {
+    public void updateDrawnPath(SparseArrayCompat<TimedPath> paths) {
 	this.paths = paths;
-	this.lastTouchedTime = touchTime;
     }
 }

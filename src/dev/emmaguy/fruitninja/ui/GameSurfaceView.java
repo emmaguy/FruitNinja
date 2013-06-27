@@ -1,9 +1,8 @@
 package dev.emmaguy.fruitninja.ui;
 
 import android.content.Context;
-import android.graphics.Path;
+import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -12,6 +11,7 @@ import android.view.View.OnTouchListener;
 import dev.emmaguy.fruitninja.FruitProjectileManager;
 import dev.emmaguy.fruitninja.GameThread;
 import dev.emmaguy.fruitninja.ProjectileManager;
+import dev.emmaguy.fruitninja.TimedPath;
 import dev.emmaguy.fruitninja.ui.GameFragment.OnGameOver;
 
 public class GameSurfaceView extends SurfaceView implements OnTouchListener, SurfaceHolder.Callback {
@@ -20,7 +20,7 @@ public class GameSurfaceView extends SurfaceView implements OnTouchListener, Sur
     private ProjectileManager projectileManager;
     private OnGameOver gameOverListener;
     private boolean isGameInitialised = false;
-    private final SparseArray<Path> paths = new SparseArray<Path>();
+    private final SparseArrayCompat<TimedPath> paths = new SparseArrayCompat<TimedPath>();
 
     public GameSurfaceView(Context context) {
 	super(context);
@@ -65,18 +65,20 @@ public class GameSurfaceView extends SurfaceView implements OnTouchListener, Sur
         
         		if (pointerIndex >= 0) {
         		    paths.valueAt(i).lineTo(event.getX(pointerIndex), event.getY(pointerIndex));
+        		    paths.valueAt(i).updateTimeDrawn(System.currentTimeMillis());
         		}
         	    }
         	    break;
 	}
 
-	gameThread.updateDrawnPath(paths, System.currentTimeMillis());
+	gameThread.updateDrawnPath(paths);
 	return true;
     }
-
+    
     private void createNewPath(float x, float y, int ptrId) {
-	Path path = new Path();
+	TimedPath path = new TimedPath();
 	path.moveTo(x, y);
+	path.updateTimeDrawn(System.currentTimeMillis());
 	paths.append(ptrId, path);
     }
 
