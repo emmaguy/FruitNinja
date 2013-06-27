@@ -1,5 +1,7 @@
 package dev.emmaguy.fruitninja;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -22,9 +24,11 @@ public class GameThread implements Runnable {
     private boolean isRunning = false;
     private volatile ScheduledFuture<?> self;
     private final Paint scorePaint = new Paint();
+    private final Paint linePaint = new Paint();
     private int score = 0;
     private int width = 0;
-    
+    private List<Line> lines = new ArrayList<Line>();
+
     public GameThread(SurfaceHolder surfaceHolder, ProjectileManager projectileManager, OnGameOver gameOverListener) {
 	this.surfaceHolder = surfaceHolder;
 	this.projectileManager = projectileManager;
@@ -45,14 +49,18 @@ public class GameThread implements Runnable {
 
     public void startGame(int width, int height) {
 	this.width = width;
-	isRunning = true;
-	projectileManager.setWidthAndHeight(width, height);
-	timer.startGame();
-	self = executor.scheduleAtFixedRate(this, 0, 10, TimeUnit.MILLISECONDS);
-	
-	scorePaint.setColor(Color.MAGENTA);
-	scorePaint.setAntiAlias(true);
-	scorePaint.setTextSize(38.0f);
+	this.isRunning = true;
+	this.projectileManager.setWidthAndHeight(width, height);
+	this.timer.startGame();
+	this.self = executor.scheduleAtFixedRate(this, 0, 10, TimeUnit.MILLISECONDS);
+
+	this.scorePaint.setColor(Color.MAGENTA);
+	this.scorePaint.setAntiAlias(true);
+	this.scorePaint.setTextSize(38.0f);
+
+	this.linePaint.setAntiAlias(true);
+	this.linePaint.setStrokeWidth(5.0f);
+	this.linePaint.setColor(Color.YELLOW);
     }
 
     @Override
@@ -77,6 +85,14 @@ public class GameThread implements Runnable {
 			    projectileManager.draw(canvas);
 			    timer.draw(canvas);
 			    canvas.drawText("Score: " + score, width - 160, 50, scorePaint);
+
+			    for (Line l : lines) {
+				canvas.drawLine(l.getStartX(), l.getStartY(), l.getStopX(), l.getStopY(), linePaint);
+				int remaining = l.decrementTicksRemaining();
+				if (remaining <= 0) {
+				    lines.remove(l);
+				}
+			    }
 			}
 		    }
 		}
@@ -91,5 +107,9 @@ public class GameThread implements Runnable {
 
     public void incrementScore() {
 	this.score++;
+    }
+
+    public void addLine(float startX, float startY, float x, float y) {
+	this.lines.add(new Line(startX, startY, x, y));
     }
 }

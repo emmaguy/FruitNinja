@@ -1,10 +1,5 @@
 package dev.emmaguy.fruitninja.ui;
 
-import dev.emmaguy.fruitninja.FruitProjectileManager;
-import dev.emmaguy.fruitninja.GameThread;
-import dev.emmaguy.fruitninja.Projectile;
-import dev.emmaguy.fruitninja.ProjectileManager;
-import dev.emmaguy.fruitninja.ui.GameFragment.OnGameOver;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -12,6 +7,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import dev.emmaguy.fruitninja.FruitProjectileManager;
+import dev.emmaguy.fruitninja.GameThread;
+import dev.emmaguy.fruitninja.ProjectileManager;
+import dev.emmaguy.fruitninja.ui.GameFragment.OnGameOver;
 
 public class GameSurfaceView extends SurfaceView implements OnTouchListener, SurfaceHolder.Callback {
 
@@ -19,6 +18,8 @@ public class GameSurfaceView extends SurfaceView implements OnTouchListener, Sur
     private ProjectileManager projectileManager;
     private OnGameOver gameOverListener;
     private boolean isGameInitialised = false;
+    private float startX;
+    private float startY;
     
     public GameSurfaceView(Context context) {
 	super(context);
@@ -52,26 +53,19 @@ public class GameSurfaceView extends SurfaceView implements OnTouchListener, Sur
 
 	switch (event.getAction()) {
 	case MotionEvent.ACTION_UP:
+	    gameThread.addLine(startX, startY, x, y);
 	    break;
 	case MotionEvent.ACTION_MOVE:
-	    break;
+	    return true;
 	case MotionEvent.ACTION_DOWN:
-
-	    for (Projectile p : projectileManager.getProjectiles()) {
-
-		if (p.isAlive() && p.getLocation().contains(x, y)) {
-		    p.kill();
-		    gameThread.incrementScore();
-		    break;
-		}
-	    }
-
+	    startX = x;
+	    startY = y;
+	    
 	    return true;
 	}
 
 	return false;
     }
-    
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
