@@ -1,5 +1,7 @@
 package dev.emmaguy.fruitninja;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -10,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v4.util.SparseArrayCompat;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import dev.emmaguy.fruitninja.ui.GameFragment.OnGameOver;
 
@@ -23,7 +26,7 @@ public class GameThread implements Runnable {
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     private final Paint linePaint = new Paint();
     private final Paint linePaintBlur = new Paint();
-    
+
     private volatile ScheduledFuture<?> self;
 
     private int score = 0;
@@ -65,7 +68,7 @@ public class GameThread implements Runnable {
 	this.linePaint.setStyle(Paint.Style.STROKE);
 	this.linePaint.setStrokeJoin(Paint.Join.ROUND);
 	this.linePaint.setStrokeWidth(5.0f);
-	
+
 	this.linePaintBlur.set(this.linePaint);
 	this.linePaintBlur.setMaskFilter(new BlurMaskFilter(9.0f, BlurMaskFilter.Blur.NORMAL));
     }
@@ -84,6 +87,14 @@ public class GameThread implements Runnable {
 
 		    projectileManager.update();
 
+		    if (paths != null && paths.size() > 0) {
+			List<TimedPath> allPaths = new ArrayList<TimedPath>();
+			for (int i = 0; i < paths.size(); i++) {
+			    allPaths.add(paths.valueAt(i));
+			}
+			score += projectileManager.testForCollisions(allPaths);
+		    }
+
 		    canvas = surfaceHolder.lockCanvas();
 		    if (canvas != null) {
 			synchronized (surfaceHolder) {
@@ -97,8 +108,8 @@ public class GameThread implements Runnable {
 				for (int i = 0; i < paths.size(); i++) {
 				    canvas.drawPath(paths.valueAt(i), linePaintBlur);
 				    canvas.drawPath(paths.valueAt(i), linePaint);
-				    
-				    if(paths.valueAt(i).getTimeDrawn() + 500 < System.currentTimeMillis()){
+
+				    if (paths.valueAt(i).getTimeDrawn() + 500 < System.currentTimeMillis()) {
 					paths.removeAt(i);
 				    }
 				}
@@ -106,6 +117,8 @@ public class GameThread implements Runnable {
 			}
 		    }
 		}
+	    } catch(Exception e){
+		Log.e("FruitNinja", e.getMessage());
 	    } finally {
 		if (canvas != null) {
 		    surfaceHolder.unlockCanvasAndPost(canvas);
@@ -113,10 +126,6 @@ public class GameThread implements Runnable {
 	    }
 	}
 
-    }
-
-    public void incrementScore() {
-	this.score++;
     }
 
     public void updateDrawnPath(SparseArrayCompat<TimedPath> paths) {

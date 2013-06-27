@@ -10,6 +10,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.Region;
 import android.util.SparseArray;
 
 public class FruitProjectileManager implements ProjectileManager {
@@ -69,18 +71,46 @@ public class FruitProjectileManager implements ProjectileManager {
 	    rotationIncrement *= -1;
 	}
 
-	FruitProjectile fruitProjectile = new FruitProjectile(bitmapCache.get(FruitType.randomFruit().getResourceId()),
-		maxWidth, maxHeight, angle, speed, gravity, rightToLeft, rotationIncrement, rotationStartingAngle);
-	return fruitProjectile;
+	return new FruitProjectile(bitmapCache.get(FruitType.randomFruit().getResourceId()), maxWidth, maxHeight,
+		angle, speed, gravity, rightToLeft, rotationIncrement, rotationStartingAngle);
     }
 
     public void setWidthAndHeight(int width, int height) {
 	this.maxWidth = width;
 	this.maxHeight = height;
+	this.clip = new Region(0, 0, width, height);
     }
 
     @Override
     public List<Projectile> getProjectiles() {
 	return fruitProjectiles;
+    }
+
+    private Region clip;
+
+    @Override
+    public int testForCollisions(List<TimedPath> allPaths) {
+
+	int score = 0;
+	for (TimedPath p : allPaths) {
+	    for (Projectile f : fruitProjectiles) {
+
+		if(!f.isAlive())
+		    continue;
+		
+		Rect dst = new Rect();
+		f.getLocation().round(dst);
+
+		Region projectile = new Region(dst);
+		Region path = new Region();
+		path.setPath(p, clip);
+
+		if (!projectile.quickReject(path) && projectile.op(path, Region.Op.INTERSECT)) {
+		    f.kill();
+		    score++;
+		}
+	    }
+	}
+	return score;
     }
 }

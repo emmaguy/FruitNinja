@@ -9,4 +9,5 @@ public interface ProjectileManager {
     void update();
     void setWidthAndHeight(int width, int height);
     List<Projectile> getProjectiles();
+    int testForCollisions(List<TimedPath> allPaths);
 }

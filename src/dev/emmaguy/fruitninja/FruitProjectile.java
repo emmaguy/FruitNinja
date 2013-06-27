@@ -28,7 +28,7 @@ public class FruitProjectile implements Projectile {
     private float time = 0.0f;
     private boolean rightToLeft;
     private boolean isAlive = true;
-    private float fallingVelocity = 0.001f;
+    private float fallingVelocity = 1.0f;
 
     public FruitProjectile(Bitmap b, int maxWidth, int maxHeight, int angle, int initialSpeed, float gravity,
 	    boolean rightToLeft, float rotationIncrement, float rotationStartingAngle) {
@@ -95,7 +95,7 @@ public class FruitProjectile implements Projectile {
 
     @Override
     public void kill() {
-	this.gravity /= 500.0f;
+	this.gravity /= 12.0f;
 	this.time = 0.0f;
 	this.isAlive = false;
 	
