@@ -1,7 +1,7 @@
 package dev.emmaguy.fruitninja;
 
 import android.graphics.Canvas;
-import android.graphics.RectF;
+import android.graphics.Rect;
 
 public interface Projectile {
 
@@ -11,7 +11,7 @@ public interface Projectile {
     void move();
     void draw(Canvas canvas);
 
-    RectF getLocation();
+    Rect getLocation();
 
     boolean isAlive();
 }

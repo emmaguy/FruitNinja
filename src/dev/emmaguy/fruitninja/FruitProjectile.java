@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.Rect;
 
 public class FruitProjectile implements Projectile {
 
@@ -21,14 +21,14 @@ public class FruitProjectile implements Projectile {
     private final int angle;
     private final int initialSpeed;
 
+    private int xLocation;
+    private int yLocation;
+    private int absYLocation;
     private float rotationAngle;
-    private float xLocation;
-    private float yLocation;
-    private float absYLocation;
     private float time = 0.0f;
+    private float fallingVelocity = 1.0f;
     private boolean rightToLeft;
     private boolean isAlive = true;
-    private float fallingVelocity = 1.0f;
 
     public FruitProjectile(Bitmap b, int maxWidth, int maxHeight, int angle, int initialSpeed, float gravity,
 	    boolean rightToLeft, float rotationIncrement, float rotationStartingAngle) {
@@ -54,8 +54,8 @@ public class FruitProjectile implements Projectile {
     public void move() {
 
 	if (isAlive) {
-	    xLocation = (float) (initialSpeed * Math.cos(angle * Math.PI / 180) * time);
-	    yLocation = (float) (initialSpeed * Math.sin(angle * Math.PI / 180) * time - 0.5 * gravity * time * time);
+	    xLocation = (int) (initialSpeed * Math.cos(angle * Math.PI / 180) * time);
+	    yLocation = (int) (initialSpeed * Math.sin(angle * Math.PI / 180) * time - 0.5 * gravity * time * time);
 
 	    if (rightToLeft) {
 		xLocation = maxWidth - b.getWidth() - xLocation;
@@ -89,8 +89,8 @@ public class FruitProjectile implements Projectile {
     }
 
     @Override
-    public RectF getLocation() {
-	return new RectF(xLocation, absYLocation, xLocation + b.getWidth(), absYLocation + b.getHeight());
+    public Rect getLocation() {
+	return new Rect(xLocation, absYLocation, xLocation + b.getWidth(), absYLocation + b.getHeight());
     }
 
     @Override
